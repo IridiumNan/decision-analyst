@@ -8,7 +8,7 @@ However, most decision are plain and most people would do. It's not distinguishe
 
 **I want to analysis decisions that make me different from other.**
 
-So, I would score an decision with $Score = - log{2}{possibility} * exp^{impact}$. If this decision rarely happened, it will take more information about who am I and how I learn about the world.
+So, I would score an decision with $Score = - log_2 p \cdot e^i$. If this decision rarely happened, it will take more information about who am I and how I learn about the world.
 
 By the way, I hold the view that I'm really different with most of people.
 
@@ -22,9 +22,29 @@ Nixos instead of Windows, hyprland instead of gnome, left-hand mouse instead of 
 
 This project will feed the self-host LLM or cloud one with your plain documents (markdown, html, txt...).
 
-Then the LLM extract main decision on this documents, evaluate it's rough possibility (If you have more efficiently method, write a issue for recommendation please).
+Then the LLM extract main decision on this documents, evaluate it's rough possibility and impact (if you not offer this impact)
 
-Based on the possibility of this decision, a score will be calculate by equation $Score = - log{2}{possibility} * exp^{impact}$
+> If you have more efficiently method, write a issue for recommendation please
+
+Based on the possibility of this decision, a score will be calculate by equation
+
+$s(p, i) = - log_2 p \cdot e^i$
+
+where
+
+- $s$ is the **score** of this decision
+
+- $p$ is **possibility** that this desicion happened on this cases (user is recommonded list all alternatives when decide)
+
+- $i$ is the **impact** this decision makes. It's an integer range from [0, 3]
+  
+  - 0, rare impact
+  
+  - 1, you can get some benefit from it for a period of time
+  
+  - 2, benefits you for a long lasting peroid or makes you grow rapidly
+  
+  - 3, life long lasting benefits that impact massive decision after that.
 
 This just a score for rarity. You can define more dimensions like effect time, experience score etc...
 
