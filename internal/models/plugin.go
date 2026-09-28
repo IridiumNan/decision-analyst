@@ -1,15 +1,24 @@
 package models
 
+import (
+	"encoding/json"
+	"time"
+)
+
 type PluginName string
 
-type PluginResult struct {
-	// PluginName record where this result comes from
+type RenderKind string
+
+type Facet struct {
 	PluginName PluginName
 
-	// Data is where plugin store output
-	Data any
+	Kind RenderKind
 
-	// Render string
+	Data json.RawMessage
+
+	Text string
+
+	CreateAt time.Time
 }
 
 type Plugin interface {
@@ -17,9 +26,12 @@ type Plugin interface {
 	Name() PluginName
 
 	// Process function process [Event] with all original data read-only
-	// It return [Result] and error
+	// It returns [Facet] and error
+	// The Facet is one part and analysis direction about this event
+	//
+	// if process return non nil error, the result should be dropped
 	//
 	// WARN: All plugins should not change any original data on the database
 	// Plugin can only alter their own table on database
-	Process(e *Event) (PluginResult, error)
+	Process(e *Event) (*Facet, error)
 }

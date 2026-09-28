@@ -26,4 +26,10 @@ CREATE TABLE Event (
     -- You can all some link on source
     -- It's format must be plain text or other parsable format
     -- default markdown, html, txt is supported
+
+
+    is_delete INTERGER,
+    -- mark if this event is deleted
+    -- 0 is false
+    -- 1 is true (means this event is deleted)
 );

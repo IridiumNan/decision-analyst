@@ -4,3 +4,7 @@ time=2026-09-28T16:29:30.531+08:00 level=INFO msg="starting work" id=2a45a6184b2
 time=2026-09-28T16:32:16.221+08:00 level=WARN msg="exit work without done" id=2a45a6184b2adefd title="Design SQL Table"
 time=2026-09-28T17:28:28.583+08:00 level=INFO msg="starting work" id=2a45a6184b2adefd title="Design SQL Table"
 time=2026-09-28T17:28:49.257+08:00 level=INFO msg="work has done" id=2a45a6184b2adefd title="Design SQL Table"
+time=2026-09-28T20:16:31.554+08:00 level=INFO msg="starting work" id=4ff7413c8cd818a5 title="Write a minimal Web demo"
+time=2026-09-28T20:16:41.141+08:00 level=WARN msg="exit work without done" id=4ff7413c8cd818a5 title="Write a minimal Web demo"
+time=2026-09-28T20:41:53.034+08:00 level=INFO msg="starting work" id=4ff7413c8cd818a5 title="Write a minimal Web demo"
+time=2026-09-28T20:42:02.635+08:00 level=INFO msg="work has done" id=4ff7413c8cd818a5 title="Write a minimal Web demo"

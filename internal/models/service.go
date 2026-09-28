@@ -30,8 +30,8 @@ func (s *Service) Enable(pn PluginName) error {
 // Process process this event with all enabled plugins
 // if no error reported, return nil
 // else return []error
-func (s *Service) Process(e *Event) ([]PluginResult, []error) {
-	allRes := make([]PluginResult, 0, len(s.enabledPlugins))
+func (s *Service) Process(e *Event) ([]*Facet, []error) {
+	allRes := make([]*Facet, 0, len(s.enabledPlugins))
 	allErr := make([]error, 0, 2)
 
 	// traverse all plugins then call their Process functions
@@ -39,7 +39,9 @@ func (s *Service) Process(e *Event) ([]PluginResult, []error) {
 
 		r, err := plugin.Process(e)
 		if err != nil {
+			// if occur error, skip this result
 			allErr = append(allErr, err)
+			continue
 		}
 		allRes = append(allRes, r)
 	}
@@ -52,6 +54,6 @@ func (s *Service) Process(e *Event) ([]PluginResult, []error) {
 
 // ProcessWith process this event with single Plugin by [PluginName]
 // It will call [Plugin.Process] function then return error
-func (s *Service) ProcessWith(pn PluginName, e *Event) (PluginResult, error) {
+func (s *Service) ProcessWith(pn PluginName, e *Event) (*Facet, error) {
 	return s.allPlugins[pn].Process(e)
 }
