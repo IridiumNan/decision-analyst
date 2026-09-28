@@ -32,5 +32,17 @@ Default format is markdown. (Html supported)
 
 Must be plain text !!!
 
+Remember that all source stored on the database should be lightweight text.
+
+It's a summary for review and not contains all details.
+
+The source itself is a long summary and review only
+
+But wait, why the first version of summary and comment is the core of all these things ?
+
+Why should we should 1-N relation on the event-source architecture ?
+
+That's a essential question
+
 > [!NOTE]
 > So add a type or add a mark in the front of `Source` Field.

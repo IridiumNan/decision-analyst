@@ -1,0 +1,6 @@
+time=2026-09-28T15:28:23.165+08:00 level=INFO msg="starting work" id=2a45a6184b2adefd title="Design SQL Table"
+time=2026-09-28T16:26:44.664+08:00 level=WARN msg="exit work without done" id=2a45a6184b2adefd title="Design SQL Table"
+time=2026-09-28T16:29:30.531+08:00 level=INFO msg="starting work" id=2a45a6184b2adefd title="Design SQL Table"
+time=2026-09-28T16:32:16.221+08:00 level=WARN msg="exit work without done" id=2a45a6184b2adefd title="Design SQL Table"
+time=2026-09-28T17:28:28.583+08:00 level=INFO msg="starting work" id=2a45a6184b2adefd title="Design SQL Table"
+time=2026-09-28T17:28:49.257+08:00 level=INFO msg="work has done" id=2a45a6184b2adefd title="Design SQL Table"
