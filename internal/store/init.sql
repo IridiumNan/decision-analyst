@@ -28,7 +28,7 @@ CREATE TABLE Event (
     -- default markdown, html, txt is supported
 
 
-    is_delete INTERGER,
+    is_delete INTERGER DEFAULT 0,
     -- mark if this event is deleted
     -- 0 is false
     -- 1 is true (means this event is deleted)

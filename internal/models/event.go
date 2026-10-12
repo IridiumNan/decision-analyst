@@ -2,8 +2,60 @@
 package models
 
 import (
+	"log"
 	"time"
 )
+
+type Field string
+
+// Field on sql
+const (
+	// only such fields can be update by [Database.Update]
+	FieldTitle   Field = "title"
+	FieldSummary Field = "summary"
+	FieldSource  Field = "source"
+
+	// For these fields, they should not updated by [Database.Update] function, drop them before Update
+	FieldID         Field = "id"
+	FieldOccurTime  Field = "occur_time"
+	FieldCreateTime Field = "create_time"
+	FieldFormat     Field = "format"
+	FieldIsDelete   Field = "is_delete"
+)
+
+// isMutable is a map check if specific [Field] is mutable
+// if mutable, return true
+// else, false
+var isMutable = map[Field]bool{
+	FieldTitle:   true,
+	FieldSummary: true,
+	FieldSource:  true,
+
+	FieldID:         false,
+	FieldOccurTime:  false,
+	FieldCreateTime: false,
+	FieldFormat:     false,
+	FieldIsDelete:   false,
+}
+
+// IsMutableField return if this [Field] is mutable
+func IsMutableField(f Field) bool {
+	mutable, ok := isMutable[f]
+	if !ok {
+		log.Fatalf("Field not in isMutable map, fix your code !!! field: %s", f)
+	}
+
+	return mutable
+}
+
+// DropUnmutableFields drop fields that should not updated by [Database.Update]
+func DropUnmutableFields(attr map[Field]any) {
+	for f := range attr {
+		if !IsMutableField(f) {
+			delete(attr, f)
+		}
+	}
+}
 
 // Event struct define for
 type Event struct {
@@ -11,9 +63,11 @@ type Event struct {
 	ID int
 
 	// Title contains a few words describe this event
+	// This field is mutable
 	Title string
 
 	// Summary
+	// This field is mutable
 	Summary string
 
 	// OccurTime record when this event happened
@@ -28,11 +82,7 @@ type Event struct {
 
 	// Source contains comprehensive content about this event
 	// It should be objective. You can add some links for repository or pictures
+	//
+	// This field is mutable
 	Source string
-
-	// WARN: You should not use this structure
-	// Because it this is enabled, different plugins may not work independently
-	// attributes store data
-	// plugins can store processed data there
-	// Attributes map[string]any
 }
