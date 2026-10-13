@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 )
 
 // Database defines all interface for raw event record needed
@@ -13,6 +14,17 @@ type Query struct {
 	Q string
 
 	Args []any
+}
+
+// QueryAll return a Query that match all events created before now
+func QueryAll() *Query {
+	sqlStr := ListQueryPrefix + "WHERE create_time < ?"
+	args := []any{time.Now()}
+
+	return &Query{
+		Q:    sqlStr,
+		Args: args,
+	}
 }
 
 const ListQueryPrefix = "SELECT id, title, summary, occur_time, create_time, format, is_delete FROM %T "
@@ -66,13 +78,17 @@ func NewAttrs(attr map[Field]any) *Attrs {
 	}
 }
 
+// Database is interface for run transcation with db
+//
+// before functions reading data [Database.List], [Database.Fetch]
+// current transcation will be auto commited
 type Database interface {
 	// Add function add a new event into database
 	// It will throw error only when database read or write error
 	Add(e *Event) error
 
-	// Del function delete the event from database by [Event.ID]
-	// it will mark as deleted
+	// Del function soft delete the event from database by [Event.ID]
+	// it will mark as deleted (set [FieldIsDelete] = 1)
 	Del(id int) error
 
 	// Update update the event information

@@ -4,14 +4,20 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
+	"os"
 	"strings"
 	"time"
 
+	_ "embed"
+
 	"github.com/IridiumNan/decision-analyst/internal/models"
-	_ "github.com/IridiumNan/decision-analyst/internal/models"
 	"github.com/IridiumNan/decision-analyst/pkgs/utils"
 	_ "github.com/mattn/go-sqlite3"
 )
+
+//go:embed init.sql
+var initSchema string
 
 // SQLiteDB will auto commit before read any data
 type SQLiteDB struct {
@@ -56,7 +62,10 @@ const addSQL = `
 
 // Add new event into transcation, call [SQLiteDB.Commit] to sync data
 //
-// impliment for [models.Database.Add]
+// implement for [models.Database.Add]
+//
+// it will just use such field from this event struct:
+// Title, Summary, OccurTime, Format, Source
 func (d *SQLiteDB) Add(e *models.Event) error {
 	err := d.prepareWrite()
 	if err != nil {
@@ -65,8 +74,10 @@ func (d *SQLiteDB) Add(e *models.Event) error {
 
 	sqlStr := d.replaceTable(addSQL)
 	_, err = d.tx.Exec(sqlStr, e.Title, e.Summary, e.OccurTime, models.FormatToText(e.Format), e.Source)
+
+	slog.Info("exec sql add", "sqlStr", sqlStr, "title", e.Title, "summary", e.Summary, "occurTime", e.OccurTime, "formt", models.FormatToText(e.Format))
 	if err != nil {
-		return fmt.Errorf("Add: error while add new event to transcation, err: %s", err.Error())
+		return fmt.Errorf("Add: error while add new event to transcation, err: %s, sqlStr: %s", err.Error(), sqlStr)
 	}
 
 	return nil
@@ -79,7 +90,7 @@ const delSQL = `
 
 // Del event from database by id (soft-delete)
 //
-// impliment for [models.Database.Del]
+// implement for [models.Database.Del]
 func (d *SQLiteDB) Del(id int) error {
 	err := d.prepareWrite()
 	if err != nil {
@@ -89,6 +100,7 @@ func (d *SQLiteDB) Del(id int) error {
 	sqlStr := d.replaceTable(delSQL)
 
 	_, err = d.tx.Exec(sqlStr, id)
+	slog.Info("exex sql soft delete", "sqlStr", sqlStr, "id", id)
 	if err != nil {
 		return fmt.Errorf("Del: error while set event whose id = %d as deleted", id)
 	}
@@ -101,7 +113,7 @@ const updateSQL = `
 
 // Update event mutable fields by id
 //
-// impliment for [models.Database.Update]
+// implement for [models.Database.Update]
 func (d *SQLiteDB) Update(id int, a *models.Attrs) error {
 	err := d.prepareWrite()
 	if err != nil {
@@ -112,7 +124,9 @@ func (d *SQLiteDB) Update(id int, a *models.Attrs) error {
 
 	args := utils.MapV(a.Attr)
 	args = append(args, id)
+
 	_, err = d.tx.Exec(sqlStr, args...)
+	slog.Info("exec sql update", "sqlStr", sqlStr, "args", args)
 	if err != nil {
 		return fmt.Errorf("Update: failed to update, sqlStr: %s, err: %s", sqlStr, err.Error())
 	}
@@ -177,7 +191,11 @@ func (d *SQLiteDB) rowsToEvent(r *sql.Rows) ([]*models.Event, error) {
 }
 
 // List get events with [models.Event.Source] = ""
-// impliment for [models.Database.List]
+// implement for [models.Database.List]
+//
+// For all Evnet, use [models.QueryAll]
+//
+// if no filter, set f = nil
 func (d *SQLiteDB) List(q models.Query, f func(e *models.Event) bool) ([]*models.Event, error) {
 	err := d.prepareRead()
 	if err != nil {
@@ -186,20 +204,19 @@ func (d *SQLiteDB) List(q models.Query, f func(e *models.Event) bool) ([]*models
 
 	sqlStr := d.replaceTable(q.Q)
 	rows, err := d.db.Query(sqlStr, q.Args...)
+	slog.Info("query for events", "sqlStr", sqlStr, "args", q.Args)
 	if err != nil {
-		errAppend := strings.Repeat("%v, ", len(q.Args))
-
-		args := make([]any, 0, len(q.Args)+1)
-		args = append(args, sqlStr)
-		args = append(args, q.Args...)
-
-		return nil, fmt.Errorf("List: error while query, sql: %s, "+errAppend, args...)
+		return nil, fmt.Errorf("List: error while query, sqlStr: %s, args: %v, err:  %s", sqlStr, q.Args, err)
 	}
 	defer rows.Close()
 
 	events, err := d.rowsToEvent(rows)
 
 	r := make([]*models.Event, 0, len(events))
+	if f == nil {
+		return events, err
+	}
+
 	for _, eve := range events {
 		if f(eve) {
 			r = append(r, eve)
@@ -213,7 +230,7 @@ const fetchSQL = `
 	SELECT title, summary, occur_time, create_time, format, source, is_delete FROM %T
 	WHERE id = ?`
 
-// Fetch the impliment for [models.Database.Fetch]
+// Fetch the implement for [models.Database.Fetch]
 func (d *SQLiteDB) Fetch(id int) (*models.Event, error) {
 	err := d.prepareRead()
 	if err != nil {
@@ -274,18 +291,32 @@ func (d *SQLiteDB) Close() error {
 	return d.db.Close()
 }
 
-// NewSQLiteDB create a new db that impliment the [models.Database]
+// NewSQLiteDB create a new db that implement the [models.Database]
 // if sqlite file not exist, it will create a new one
 //
 // Default table name is Event
 func NewSQLiteDB(sqliteFile string) (*SQLiteDB, error) {
+	first := false
+	if _, err := os.Stat(sqliteFile); os.IsNotExist(err) {
+		first = true
+	}
+
 	db, err := sql.Open("sqlite3", sqliteFile)
 	if err != nil {
 		return nil, fmt.Errorf("error while opening a new sqlite database, err: %s", err.Error())
 	}
+	if first {
+		slog.Info("new database, init...")
+		_, err = db.Exec(initSchema)
+		if err != nil {
+			db.Close()
+			return nil, fmt.Errorf("error while exec init schema, err: %s", err.Error())
+		}
+	}
 
 	return &SQLiteDB{
-		db: db,
+		db:        db,
+		tableName: "Event",
 	}, nil
 }
 

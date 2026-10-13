@@ -2,7 +2,7 @@
 -- WARN: Don't touch it if you can add fields by plugins
 
 CREATE TABLE Event (
-    id INTERGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     -- id is the distinct mark for each Event
 
     title TEXT,
@@ -15,7 +15,7 @@ CREATE TABLE Event (
     occur_time DATETIME,
     -- time record when this event happened
     
-    create_time DATETIME,
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
 
     format TEXT CHECK (format in ('markdown', "html", "txt")),
     -- format of source data
@@ -28,7 +28,7 @@ CREATE TABLE Event (
     -- default markdown, html, txt is supported
 
 
-    is_delete INTERGER DEFAULT 0,
+    is_delete INTEGER DEFAULT 0
     -- mark if this event is deleted
     -- 0 is false
     -- 1 is true (means this event is deleted)

@@ -10,6 +10,8 @@ type Field string
 
 // Field on sql
 const (
+	// FieldNone is a mark for none field
+	FieldNone Field = ""
 	// only such fields can be update by [Database.Update]
 	FieldTitle   Field = "title"
 	FieldSummary Field = "summary"
@@ -90,4 +92,44 @@ type Event struct {
 	// 1 deleted
 	// 0 not deleted
 	IsDel int
+}
+
+// Equal return if e and o is value equal
+//
+// if not equal, return the first not match field
+// compare All Fields
+func (e *Event) Equal(o *Event) (bool, Field) {
+	if e.ID != o.ID {
+		return false, FieldID
+	}
+
+	if e.Title != o.Title {
+		return false, FieldTitle
+	}
+
+	if e.Summary != o.Summary {
+		return false, FieldSummary
+	}
+
+	if !e.CreateTime.Equal(o.CreateTime) {
+		return false, FieldCreateTime
+	}
+
+	if !e.OccurTime.Equal(o.OccurTime) {
+		return false, FieldOccurTime
+	}
+
+	if e.Format != o.Format {
+		return false, FieldFormat
+	}
+
+	if e.Source != o.Source {
+		return false, FieldSource
+	}
+
+	if e.IsDel != o.IsDel {
+		return false, FieldIsDelete
+	}
+
+	return true, FieldNone
 }
