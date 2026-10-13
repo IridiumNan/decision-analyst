@@ -11,14 +11,7 @@ import (
 // Below is an example of how you can structure your real CRUD test.
 // Replace `NewSQLiteDatabase` with your actual constructor function.
 
-func testDatabaseReadWriteFetchIntegration(db models.Database, t *testing.T) {
-	// TODO: Replace this with your actual database constructor
-	// e.g., db := NewSQLiteDatabase(rawSQLDB)
-	// For demonstration, we assume a standard DB wrapper implementing the Database interface.
-
-	// db := NewSQLiteDatabase(rawSQLDB)
-	// defer db.Close()
-
+func testDBReadWriteFetchIntegration(db models.Database, t *testing.T) {
 	now := time.Now().UTC().Truncate(time.Second)
 
 	// 1. Test Add (Write)
@@ -81,5 +74,58 @@ func testDatabaseReadWriteFetchIntegration(db models.Database, t *testing.T) {
 	}
 	if deletedEvent.IsDel != 1 {
 		t.Errorf("Expected IsDel to be 1, got %d", deletedEvent.IsDel)
+	}
+}
+
+func testDBSimpleAddDelFetch(d models.Database, t *testing.T) {
+	e := &models.Event{
+		Title:     "Hello World",
+		Summary:   "This is a test event for hello world",
+		OccurTime: time.Date(2025, time.October, 30, 0, 0, 0, 0, models.Local),
+		Format:    models.FormatMarkdown,
+		Source:    "this is test source",
+	}
+
+	firstID := 2
+
+	exp := &models.Event{
+		ID:        firstID,
+		Title:     "Hello World",
+		Summary:   "This is a test event for hello world",
+		OccurTime: time.Date(2025, time.October, 30, 0, 0, 0, 0, models.Local),
+		Format:    models.FormatMarkdown,
+		Source:    "this is test source",
+	}
+
+	err := d.Add(e)
+	if err != nil {
+		t.Errorf("error while adding new event, err: %s", err.Error())
+	}
+
+	// fetch will get the total source
+	got, err := d.Fetch(firstID)
+
+	exp.CreateTime = got.CreateTime
+	if err != nil {
+		t.Errorf("error while fetching first event")
+	}
+
+	if equal, field := exp.Equal(got); !equal {
+		t.Errorf("first added event not match, field: %s", field)
+	}
+
+	err = d.Del(firstID)
+	if err != nil {
+		t.Errorf("error while del event with id = %d, err: %s", firstID, err.Error())
+	}
+
+	got, err = d.Fetch(firstID)
+	if err != nil {
+		t.Errorf("error while fetching first event after del")
+	}
+	exp.IsDel = 1
+
+	if equal, field := exp.Equal(got); !equal {
+		t.Errorf("first added event after del not match, field: %s", field)
 	}
 }
