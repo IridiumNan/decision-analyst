@@ -18,8 +18,8 @@ const (
 	// other format can be extend later
 )
 
-// FormatTodType convert the format (string on database) into [FormatType]
-func FormatTodType(formatStr string) FormatType {
+// FormatToType convert the format (string on database) into [FormatType]
+func FormatToType(formatStr string) FormatType {
 	switch formatStr {
 	case "markdown":
 		return FormatMarkdown

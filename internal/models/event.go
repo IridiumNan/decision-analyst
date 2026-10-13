@@ -85,4 +85,9 @@ type Event struct {
 	//
 	// This field is mutable
 	Source string
+
+	// IsDel mark if this event have been soft-deleted
+	// 1 deleted
+	// 0 not deleted
+	IsDel int
 }
