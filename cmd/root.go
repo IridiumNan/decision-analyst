@@ -6,12 +6,13 @@ package cmd
 import (
 	"os"
 
+	"github.com/IridiumNan/decision-analyst/internal/models"
 	"github.com/spf13/cobra"
 )
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "decision-analyst",
+	Use:   models.AppName,
 	Short: "A system help record and visualize your important decisions",
 	Long: `Decision Analyst is a golang backend system
 	which makes you can record your essentail decisions easily.

@@ -2,10 +2,21 @@ package models
 
 import (
 	"log"
+	"os"
 	"time"
 )
 
-var Local *time.Location
+const (
+	MainDBFileName = "main.db"
+	EmptyStr       = ""
+	NonePath       = EmptyStr
+	AppName        = "decision-analyst"
+)
+
+var (
+	Local    *time.Location
+	userHome = NonePath
+)
 
 func init() {
 	var err error
@@ -15,4 +26,18 @@ func init() {
 	}
 }
 
-const MainDBFileName = "main.db"
+// HomeDir return user Home dir
+// if failed, panic
+func HomeDir() string {
+	if userHome != NonePath {
+		return userHome
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatalf("error while getting user home, err: %s", err.Error())
+	}
+
+	userHome = home
+
+	return userHome
+}

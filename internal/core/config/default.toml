@@ -1,0 +1,10 @@
+[database]
+# default database dir is running dir
+# change it if nessesary
+dir = "."
+
+[serve]
+# just listening on localhost:8080
+addr = "127.0.0.1"
+port = "8080"
+
