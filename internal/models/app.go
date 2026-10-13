@@ -14,3 +14,5 @@ func init() {
 		log.Fatalf("while setting locale: %s", err.Error())
 	}
 }
+
+const MainDBFileName = "main.db"
