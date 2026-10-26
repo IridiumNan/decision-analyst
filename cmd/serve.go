@@ -5,9 +5,12 @@ package cmd
 
 import (
 	"log"
+	"log/slog"
 
 	"github.com/IridiumNan/decision-analyst/cmd/web"
+	"github.com/IridiumNan/decision-analyst/internal/core/config"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // serveCmd represents the serve command
@@ -21,9 +24,12 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		config.LoadConfig()
 		r := web.NewRouter()
 
-		err := r.Run(":8082")
+		addr := viper.GetString("serve.addr")
+		slog.Info("starting serve...", "addr", addr)
+		err := r.Run(addr)
 		if err != nil {
 			log.Fatal(err)
 		}

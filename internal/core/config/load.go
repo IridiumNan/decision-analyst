@@ -24,11 +24,11 @@ var searchDirs = []string{
 const configFileName = "config.toml"
 
 func init() {
-	loadConfig()
+	LoadConfig()
 }
 
-// loadConfig load configuration from [searchDirs] using viper
-func loadConfig() {
+// LoadConfig load configuration from [searchDirs] using viper
+func LoadConfig() {
 	viper.SetConfigFile(configFileName)
 
 	// viper.SetOptions(viper.KeyDelimiter("::"))

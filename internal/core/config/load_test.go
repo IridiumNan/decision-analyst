@@ -3,6 +3,7 @@ package config
 import (
 	"bytes"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/spf13/viper"
@@ -25,8 +26,7 @@ func TestConfigLoad(t *testing.T) {
 
 	check(".", viper.GetString("database.dir"))
 
-	check("127.0.0.1", viper.GetString("serve.addr"))
-	check("8080", viper.GetString("serve.port"))
+	check("127.0.0.1:8080", viper.GetString("serve.addr"))
 
 	err := os.Remove(configFileName)
 	if err != nil {
@@ -52,12 +52,12 @@ func TestWithModify(t *testing.T) {
 		t.Errorf("error while writing modified configuration file, err: %s", err.Error())
 	}
 
-	loadConfig()
+	LoadConfig()
 
 	check(".", viper.GetString("database.dir"))
 
-	check(expAddr, viper.GetString("serve.addr"))
-	check(expPort, viper.GetString("serve.port"))
+	expaddr := strings.Join([]string{expAddr, expPort}, ":")
+	check(expaddr, viper.GetString("serve.addr"))
 
 	err = os.Remove(configFileName)
 	if err != nil {

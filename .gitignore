@@ -1,3 +1,4 @@
 local/
 bin/
 *.db
+config.toml
